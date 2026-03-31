@@ -156,3 +156,24 @@ async def test_get_suggestions(connection: Connection) -> None:
     tracks = await connection.get_suggested_tracks()
     assert len(tracks["Items"]) == 1
     assert tracks["Items"][0]["Name"] == "11 Thrown Away"
+
+
+async def test_set_favorite_track(connection: Connection) -> None:
+    """Make sure we can mark a track as a favorite."""
+    track_id = "54918f75ee8f6c8b8dc5efd680644f29"
+    track = await connection.get_track(track_id)
+    assert track["UserData"]["IsFavorite"] is False
+
+    await connection.set_favorite(track_id, True)
+    track = await connection.get_track(track_id)
+    assert track["UserData"]["IsFavorite"] is True
+
+
+async def test_unset_favorite_track(connection: Connection) -> None:
+    """Make sure we can unmark a track as a favorite."""
+    track_id = "54918f75ee8f6c8b8dc5efd680644f29"
+
+    await connection.set_favorite(track_id, True)
+    await connection.set_favorite(track_id, False)
+    track = await connection.get_track(track_id)
+    assert track["UserData"]["IsFavorite"] is False

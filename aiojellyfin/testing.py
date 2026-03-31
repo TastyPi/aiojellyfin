@@ -162,6 +162,12 @@ class TestConnection(Connection):
         """Return suggested tracks."""
         return await self.tracks.search_term("thrown").request()
 
+    async def set_favorite(self, item_id: str, favorite: bool) -> None:
+        """Mark or unmark an item as a favorite."""
+        if item_id not in self._fixture.objects:
+            raise NotFound(item_id)
+        self._fixture.objects[item_id].setdefault("UserData", {})["IsFavorite"] = favorite
+
     async def get_similar_tracks(
         self,
         track_id: str,

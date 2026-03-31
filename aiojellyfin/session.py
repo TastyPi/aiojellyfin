@@ -63,17 +63,38 @@ class Session:
         self._user_id = user_id
         self._access_token = access_token
 
+    def _headers(self) -> dict[str, str]:
+        return {
+            "Content-Type": "application/json",
+            "User-Agent": self._session_config.user_agent,
+            "Authorization": self._session_config.authentication_header(self._access_token),
+        }
+
+    async def post_json(self, url: str) -> None:
+        """Call a Jellyfin API with POST."""
+        await self._session.post(
+            f"{self.base_url}{url}",
+            headers=self._headers(),
+            ssl=self._session_config.verify_ssl,
+            raise_for_status=True,
+        )
+
+    async def delete_json(self, url: str) -> None:
+        """Call a Jellyfin API with DELETE."""
+        await self._session.delete(
+            f"{self.base_url}{url}",
+            headers=self._headers(),
+            ssl=self._session_config.verify_ssl,
+            raise_for_status=True,
+        )
+
     async def get_json(self, url: str, params: Mapping[str, str]) -> dict[str, Any]:
         """Call a Jellyfin API and retrieve the JSON response."""
         try:
             resp = await self._session.get(
                 f"{self.base_url}{url}",
                 params=params,
-                headers={
-                    "Content-Type": "application/json",
-                    "User-Agent": self._session_config.user_agent,
-                    "Authorization": self._session_config.authentication_header(self._access_token),
-                },
+                headers=self._headers(),
                 ssl=self._session_config.verify_ssl,
                 raise_for_status=True,
             )

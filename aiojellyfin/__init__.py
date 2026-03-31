@@ -172,6 +172,14 @@ class Connection:
         )
         return self._tracks_decoder.decode(resp)
 
+    async def set_favorite(self, item_id: str, favorite: bool) -> None:
+        """Mark or unmark an item as a favorite for the current user."""
+        url = f"/Users/{self._user_id}/FavoriteItems/{item_id}"
+        if favorite:
+            await self._session.post_json(url)
+        else:
+            await self._session.delete_json(url)
+
     def _build_url(self, url: str, params: dict[str, str | int]) -> str:
         assert url.startswith("/")
 
